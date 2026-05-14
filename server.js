@@ -121,7 +121,9 @@ app.get('/api/threads', async (req, res) => {
     const before = req.query.before || '2026/12/31';
     const maxRes = Math.min(parseInt(req.query.max) || 50, 50);
 
-    const query = `from:${sender} after:${after} before:${before}`;
+    const recipient = req.query.recipient || '';
+    let query = `from:${sender} after:${after} before:${before}`;
+    if (recipient) query += ` to:${recipient}`;
     const list  = await gmailFetch('/threads', { q: query, maxResults: maxRes });
     if (!list.threads || !list.threads.length) return res.json({ threads: [] });
 
