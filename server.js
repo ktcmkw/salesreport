@@ -73,6 +73,31 @@ function extractParts(payload) {
   return parts;
 }
 
+// Extract full email body (text/plain preferred, fallback to text/html stripped)
+function extractBody(payload) {
+  if (!payload) return '';
+  // Simple (non-multipart) message
+  if (payload.body && payload.body.data) {
+    return Buffer.from(payload.body.data.replace(/-/g,'+').replace(/_/g,'/'), 'base64').toString('utf-8').slice(0, 8000);
+  }
+  // Multipart: walk parts
+  function find(parts, mime) {
+    for (const p of (parts || [])) {
+      if (p.mimeType === mime && p.body && p.body.data)
+        return Buffer.from(p.body.data.replace(/-/g,'+').replace(/_/g,'/'), 'base64').toString('utf-8');
+      const nested = find(p.parts, mime);
+      if (nested) return nested;
+    }
+    return null;
+  }
+  const plain = find(payload.parts, 'text/plain');
+  if (plain) return plain.slice(0, 8000);
+  // fallback: strip HTML tags from html part
+  const html = find(payload.parts, 'text/html') || '';
+  return html.replace(/<[^>]+>/g,' ').replace(/\s{2,}/g,'
+').trim().slice(0, 8000);
+}
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -144,6 +169,7 @@ app.get('/api/threads', async (req, res) => {
           cc:          hdr(h, 'Cc'),
           date:        hdr(h, 'Date'),
           snippet:     m.snippet || '',
+          body:        extractBody(m.payload),
           hasAttach:   parts.length > 0,
           attachments: parts,
         };

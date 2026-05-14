@@ -240,12 +240,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 .conv-mk{color:var(--tx4);font-weight:700;align-self:start;padding-top:1px}
 .conv-mv{color:var(--tx3);word-break:break-all;line-height:1.5}
 /* Snippet displayed as real text */
-.conv-text{font-size:13px;color:var(--tx2);line-height:1.75;word-break:break-word;white-space:pre-wrap}
-.conv-text.compact{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
-.txt-toggle{display:flex;align-items:center;gap:2px;margin-bottom:8px}
-.txt-toggle span{font-size:9px;font-weight:700;color:var(--tx4);text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
-.txt-btn{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;border:1.5px solid var(--border2);background:none;cursor:pointer;color:var(--tx3);font-family:inherit;transition:all .12s}
-.txt-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.txt-toggle{display:flex;align-items:center;gap:5px;margin-bottom:10px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.txt-toggle-lbl{font-size:10px;font-weight:700;color:var(--tx3);margin-right:4px;flex-shrink:0}
+.txt-btn{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid var(--border2);background:none;cursor:pointer;color:var(--tx3);font-family:inherit;transition:all .15s}
+.txt-btn:hover{border-color:var(--accent);color:var(--accent)}
+.txt-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.conv-text{font-size:13px;color:var(--tx2);line-height:1.8;word-break:break-word;white-space:pre-wrap;max-height:400px;overflow-y:auto}
+.conv-text.compact{max-height:72px;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,black 50%,transparent 100%)}
 /* Image gallery */
 .img-gallery{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .img-thumb{max-width:180px;max-height:140px;border-radius:8px;border:1px solid var(--border);object-fit:cover;cursor:pointer;transition:transform .15s;box-shadow:var(--sh)}
@@ -654,11 +656,11 @@ function render(){
       ${msg.cc?`<div class="conv-mk">CC</div><div class="conv-mv">${e(msg.cc)}</div>`:''}
     </div>
     <div class="txt-toggle" onclick="event.stopPropagation()">
-      <span>แสดงข้อความ</span>
-      <button class="txt-btn on" onclick="setTxtMode(this,'wrap')">ต้นฉบับ</button>
+      <span class="txt-toggle-lbl">📄 ข้อความ</span>
+      <button class="txt-btn on" onclick="setTxtMode(this,'full')">ต้นฉบับ</button>
       <button class="txt-btn"    onclick="setTxtMode(this,'compact')">ย่อ</button>
     </div>
-    <div class="conv-text">${e(msg.snippet||'(ไม่มีเนื้อหา)')}</div>
+    <div class="conv-text" data-full="${e(msg.body||msg.snippet||'(ไม่มีเนื้อหา)')}" data-snip="${e(msg.snippet||'(ไม่มีเนื้อหา)')}">${e(msg.body||msg.snippet||'(ไม่มีเนื้อหา)')}</div>
     ${imgHtml}${fileHtml}
   </div></div>
 </div>`;
@@ -696,7 +698,13 @@ function setTxtMode(btn,mode){
   btn.classList.add('on');
   const txt=row.nextElementSibling;
   if(txt&&txt.classList.contains('conv-text')){
-    txt.classList.toggle('compact',mode==='compact');
+    if(mode==='compact'){
+      txt.textContent=txt.dataset.snip||'';
+      txt.classList.add('compact');
+    } else {
+      txt.textContent=txt.dataset.full||txt.dataset.snip||'';
+      txt.classList.remove('compact');
+    }
   }
 }
 function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('on')}
