@@ -249,9 +249,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 .conv-text{font-size:13px;color:var(--tx2);line-height:1.8;word-break:break-word;white-space:pre-wrap;max-height:400px;overflow-y:auto}
 .conv-text.compact{max-height:72px;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,black 50%,transparent 100%)}
 /* Image gallery */
-.img-gallery{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.img-thumb{max-width:180px;max-height:140px;border-radius:8px;border:1px solid var(--border);object-fit:cover;cursor:pointer;transition:transform .15s;box-shadow:var(--sh)}
-.img-thumb:hover{transform:scale(1.03);box-shadow:var(--sh-md)}
+/* Image carousel */
+.img-carousel{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;background:var(--surface2);border:1px solid var(--border)}
+.img-carousel-track{display:flex;transition:transform .3s ease}
+.img-carousel-slide{flex-shrink:0;width:100%;display:flex;align-items:center;justify-content:center;min-height:120px;max-height:280px;overflow:hidden;cursor:zoom-in}
+.img-carousel-slide img{width:100%;height:100%;object-fit:contain;max-height:280px;display:block}
+.car-btn{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .15s;flex-shrink:0}
+.car-btn:hover{background:rgba(0,0,0,.8)}
+.car-prev{left:8px}.car-next{right:8px}
+.car-counter{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;pointer-events:none}
+.car-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;pointer-events:none}
+.car-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}
+.car-dot.on{background:#fff;transform:scale(1.2)}
 /* Attachment pills */
 .att-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .att-pill{display:flex;align-items:center;gap:5px;background:var(--purple-bg);color:var(--purple);font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px}
@@ -261,10 +270,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 .conn-line{flex:1;height:0;border-top:1px dashed var(--border2)}
 .conn-lbl{font-size:9px;color:var(--tx4);font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
 
-/* Image lightbox */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:center;justify-content:center}
 .lightbox.on{display:flex}
-.lightbox img{max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.5)}
+.lb-img-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.lb-img-wrap img{max-width:88vw;max-height:85vh;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.6);display:block}
+.lb-close{position:fixed;top:16px;right:20px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s;line-height:1}
+.lb-close:hover{background:rgba(255,255,255,.3)}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:22px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;transition:background .15s}
+.lb-nav:hover{background:rgba(255,255,255,.3)}
+.lb-prev{left:16px}.lb-next{right:16px}
+.lb-counter{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;display:none}
 
 /* States */
 .state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 0;gap:16px;color:var(--tx4)}
@@ -392,8 +408,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 </div>
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="this.classList.remove('on')">
-  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
+<div class="lightbox" id="lightbox" onclick="lbClose()">
+  <button class="lb-close" onclick="event.stopPropagation();lbClose()">✕</button>
+  <button class="lb-nav lb-prev" id="lb-prev" onclick="event.stopPropagation();lbNav(-1)">‹</button>
+  <div class="lb-img-wrap" onclick="event.stopPropagation()">
+    <img id="lb-img" src="" alt="">
+  </div>
+  <button class="lb-nav lb-next" id="lb-next" onclick="event.stopPropagation();lbNav(1)">›</button>
+  <div class="lb-counter" id="lb-counter"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -628,12 +650,18 @@ function render(){
           const imgs=atts.filter(a=>a.isImage);
           const files=atts.filter(a=>!a.isImage);
 
-          const imgHtml=imgs.length?`<div class="img-gallery">${imgs.map(a=>{
-            const src=a.data
-              ?`data:${a.mimeType};base64,${a.data.replace(/-/g,'+').replace(/_/g,'/')}`
-              :`/api/attachment/${msg.id}/${a.attachmentId}?mime=${encodeURIComponent(a.mimeType)}`;
-            return`<img class="img-thumb" src="${src}" alt="${e(a.filename)}" onclick="event.stopPropagation();openLB(this.src)" loading="lazy">`;
-          }).join('')}</div>`:'';
+          const imgSrcs=imgs.map(a=>a.data
+            ?`data:${a.mimeType};base64,${a.data.replace(/-/g,'+').replace(/_/g,'/')}`
+            :`/api/attachment/${msg.id}/${a.attachmentId}?mime=${encodeURIComponent(a.mimeType)}`);
+          const carId='car_'+msg.id;
+          const imgHtml=imgs.length?`<div class="img-carousel" id="${carId}">
+            <div class="img-carousel-track" id="${carId}_track">
+              ${imgSrcs.map(src=>`<div class="img-carousel-slide"><img src="${src}" loading="lazy" onclick="event.stopPropagation();openLB('${carId}',0)" onerror="this.parentElement.style.display='none'"></div>`).join('')}
+            </div>
+            ${imgs.length>1?`<button class="car-btn car-prev" onclick="event.stopPropagation();carNav('${carId}',-1)">&#8249;</button>
+            <button class="car-btn car-next" onclick="event.stopPropagation();carNav('${carId}',1)">&#8250;</button>
+            <div class="car-dots" id="${carId}_dots">${imgs.map((_,i)=>`<div class="car-dot${i===0?' on':''}" id="${carId}_dot_${i}"></div>`).join('')}</div>`:''}
+          </div>`:'';
 
           const fileHtml=files.length?`<div class="att-list">${files.map(a=>`<div class="att-pill">📎 ${e(a.filename)}</div>`).join('')}</div>`:'';
 
@@ -691,6 +719,56 @@ function render(){
 }
 
 function toggleCard(c){c.classList.toggle('open')}
+
+// Carousel
+const carState={};
+function carNav(id,dir){
+  if(!carState[id])carState[id]={idx:0};
+  const track=document.getElementById(id+'_track');
+  if(!track)return;
+  const total=track.children.length;
+  let idx=(carState[id].idx+dir+total)%total;
+  carState[id].idx=idx;
+  track.style.transform=`translateX(-${idx*100}%)`;
+  // Update dots
+  document.querySelectorAll(`[id^="${id}_dot_"]`).forEach((d,i)=>d.classList.toggle('on',i===idx));
+  // Update lightbox if open
+  const lb=document.getElementById('lightbox');
+  if(lb.classList.contains('on')&&lb.dataset.carId===id){
+    lbSetIdx(idx);
+  }
+}
+
+// Lightbox
+let lbImages=[],lbIdx=0,lbCarId='';
+function openLB(carId,startIdx){
+  lbCarId=carId;
+  const track=document.getElementById(carId+'_track');
+  if(!track)return;
+  lbImages=Array.from(track.querySelectorAll('img')).map(i=>i.src);
+  lbIdx=carState[carId]?.idx||startIdx||0;
+  const lb=document.getElementById('lightbox');
+  lb.dataset.carId=carId;
+  lb.classList.add('on');
+  lbSetIdx(lbIdx);
+}
+function lbSetIdx(i){
+  lbIdx=i;
+  document.getElementById('lb-img').src=lbImages[lbIdx];
+  const multi=lbImages.length>1;
+  document.getElementById('lb-prev').style.display=multi?'flex':'none';
+  document.getElementById('lb-next').style.display=multi?'flex':'none';
+  const ctr=document.getElementById('lb-counter');
+  if(multi){ctr.style.display='block';ctr.textContent=(lbIdx+1)+' / '+lbImages.length;}
+  else ctr.style.display='none';
+}
+function lbNav(dir){
+  const next=(lbIdx+dir+lbImages.length)%lbImages.length;
+  // Sync carousel
+  if(lbCarId)carNav(lbCarId,dir);
+  lbSetIdx(next);
+}
+function lbClose(){document.getElementById('lightbox').classList.remove('on')}
 function setTxtMode(btn,mode){
   event.stopPropagation();
   const row=btn.closest('.txt-toggle');
@@ -707,7 +785,6 @@ function setTxtMode(btn,mode){
     }
   }
 }
-function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('on')}
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000)}
 
