@@ -94,8 +94,7 @@ function extractBody(payload) {
   if (plain) return plain.slice(0, 8000);
   // fallback: strip HTML tags from html part
   const html = find(payload.parts, 'text/html') || '';
-  return html.replace(/<[^>]+>/g,' ').replace(/\s{2,}/g,'
-').trim().slice(0, 8000);
+  return html.replace(/<[^>]+>/g,' ').replace(/\s{2,}/g,' ').trim().slice(0, 8000);
 }
 
 // Static files
