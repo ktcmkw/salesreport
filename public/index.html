@@ -298,12 +298,127 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 .toast.on{opacity:1;transform:translateY(0)}
 *::-webkit-scrollbar{width:5px;height:5px}
 *::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (≤768px)
+   ══════════════════════════════════════════════════════════ */
+
+/* Hamburger button (hidden on desktop) */
+.mob-ham{display:none;width:40px;height:40px;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;border-radius:10px;color:var(--tx1);flex-shrink:0}
+.mob-ham:hover{background:var(--surface2)}
+.mob-ham svg{width:22px;height:22px}
+
+/* Backdrop overlay */
+.sb-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;backdrop-filter:blur(2px)}
+.sb-backdrop.on{display:block}
+
+/* Bottom nav (hidden on desktop) */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--surface);border-top:1px solid var(--border);z-index:50;padding:0 4px;gap:2px;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.mob-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;border-radius:10px;padding:4px 2px;color:var(--tx4);font-size:9px;font-weight:700;transition:color .15s,background .15s;min-width:0;font-family:inherit}
+.mob-nav-item .mn-ico{font-size:18px;line-height:1}
+.mob-nav-item.on{color:var(--accent);background:var(--accent-bg)}
+
+/* Floating refresh button on mobile */
+.mob-fab{display:none;position:fixed;bottom:70px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.4);z-index:50;align-items:center;justify-content:center;transition:transform .15s}
+.mob-fab:active{transform:scale(.92)}
+
+@media (max-width: 768px) {
+  html,body{overflow:hidden}
+  body{flex-direction:column}
+
+  /* Sidebar → slide-in overlay */
+  .sb{
+    position:fixed;left:0;top:0;bottom:0;z-index:100;
+    transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+    width:min(80vw,300px);box-shadow:4px 0 32px rgba(0,0,0,.2)
+  }
+  .sb.open{transform:translateX(0)}
+  .mob-ham{display:flex}
+  .sb-backdrop.on{display:block}
+  .mob-nav{display:flex}
+  .mob-fab{display:flex}
+
+  /* Main fills screen */
+  .main{flex:1;overflow:hidden;display:flex;flex-direction:column;width:100%}
+
+  /* Top bar tighter */
+  .main-top{padding:0 10px;gap:8px;height:48px}
+  .main-title{font-size:14px}
+  .main-sub{display:none}
+  .srch-wrap{flex:1}
+  .srch-inp{width:100%;font-size:13px}
+  .srch-inp:focus{width:100%}
+  .result-badge{display:none!important}
+
+  /* Feed scroll area */
+  .feed-wrap{padding:12px 10px 76px;overflow-y:auto;flex:1}
+
+  /* Month/Day labels */
+  .month-sep{margin:18px 0 10px}
+  .day-lbl{margin-left:60px}
+
+  /* Timeline row — compact */
+  .tl-row{margin-bottom:8px}
+  .tl-dc{width:38px;padding-right:4px;padding-top:10px}
+  .tl-dn{font-size:16px}
+  .tl-dw{font-size:8px}
+  .tl-sp{width:30px}
+  .tl-nd{width:28px;height:28px;font-size:12px;margin-top:7px}
+  .tl-sp::before{display:none}
+  .tl-body{padding-left:6px}
+
+  /* Cards — touch friendly */
+  .c-hd{padding:12px 12px 8px}
+  .c-subj{font-size:13px}
+  .c-snip{font-size:11px;-webkit-line-clamp:2}
+  .c-tags{padding:6px 12px}
+  .c-det{padding:0 10px 10px}
+
+  /* Conversation */
+  .conv-msg .conv-hd{padding:10px 10px}
+  .conv-av{width:32px;height:32px;font-size:11px}
+  .conv-bd-inner{padding:10px}
+  .conv-grid{font-size:11px}
+  .conv-text{font-size:12px;line-height:1.65}
+
+  /* Thumbnail grid smaller on mobile */
+  .img-thumb{width:72px;height:72px}
+
+  /* Lightbox → full screen on mobile */
+  .lightbox{align-items:flex-end;gap:0}
+  .lb-nav{display:none!important}
+  .lb-modal{
+    width:100vw;height:92vh;max-width:100vw;max-height:92vh;
+    border-radius:20px 20px 0 0;flex-direction:column
+  }
+  /* Thumbnail strip → horizontal at bottom */
+  .lb-thumbs{
+    width:100%;height:80px;min-width:unset;
+    flex-direction:row;overflow-x:auto;overflow-y:hidden;
+    border-right:none;border-top:1px solid #ddd;
+    padding:8px;gap:8px;order:2
+  }
+  .lb-thumb{width:62px;height:62px;min-width:62px}
+  .lb-main{order:1;flex:1}
+  .lb-footer{order:3;padding:6px 14px}
+  .lb-close{top:8px;right:8px;padding:4px 10px;font-size:12px}
+
+  /* Swipe hint dots */
+  .lb-swipe-hint{display:flex}
+}
+
+@media (max-width: 400px) {
+  .tl-dc{display:none}
+  .day-lbl{margin-left:16px}
+  .feed-wrap{padding:10px 8px 76px}
+}
+
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<aside class="sb">
+<aside class="sb" id="sb">
   <div class="sb-logo">
     <div class="logo-mark">📈</div>
     <div>
@@ -341,14 +456,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
   <div class="sb-sec">
     <div class="sb-lbl">ประเภทกิจกรรม</div>
     <div class="sb-filters">
-      <button class="sbf on" data-f="all"     onclick="setF(this,'all')"><span class="sbf-dot" style="background:var(--tx4)"></span>ทั้งหมด<span class="sbf-cnt" id="c-all">0</span></button>
-      <button class="sbf"    data-f="visit"   onclick="setF(this,'visit')"><span class="sbf-dot" style="background:var(--accent)"></span>👥 เข้าพบลูกค้า<span class="sbf-cnt" id="c-visit">0</span></button>
-      <button class="sbf"    data-f="bill"    onclick="setF(this,'bill')"><span class="sbf-dot" style="background:var(--teal)"></span>🧾 วางบิล<span class="sbf-cnt" id="c-bill">0</span></button>
-      <button class="sbf"    data-f="quote"   onclick="setF(this,'quote')"><span class="sbf-dot" style="background:var(--amber)"></span>💰 เสนอราคา<span class="sbf-cnt" id="c-quote">0</span></button>
-      <button class="sbf"    data-f="retail"  onclick="setF(this,'retail')"><span class="sbf-dot" style="background:var(--rose)"></span>🛒 รีเทล/Lotus<span class="sbf-cnt" id="c-retail">0</span></button>
-      <button class="sbf"    data-f="support" onclick="setF(this,'support')"><span class="sbf-dot" style="background:var(--purple)"></span>🔧 ซ่อม/ประกัน<span class="sbf-cnt" id="c-support">0</span></button>
-      <button class="sbf"    data-f="unread"  onclick="setF(this,'unread')"><span class="sbf-dot" style="background:var(--accent)"></span>● ยังไม่อ่าน<span class="sbf-cnt" id="c-unread">0</span></button>
-      <button class="sbf"    data-f="attach"  onclick="setF(this,'attach')"><span class="sbf-dot" style="background:var(--purple)"></span>📎 มีไฟล์แนบ<span class="sbf-cnt" id="c-attach2">0</span></button>
+      <button class="sbf on" data-f="all"     data-f="all" onclick="setF(this,'all')"><span class="sbf-dot" style="background:var(--tx4)"></span>ทั้งหมด<span class="sbf-cnt" id="c-all">0</span></button>
+      <button class="sbf"    data-f="visit"   data-f="visit" onclick="setF(this,'visit')"><span class="sbf-dot" style="background:var(--accent)"></span>👥 เข้าพบลูกค้า<span class="sbf-cnt" id="c-visit">0</span></button>
+      <button class="sbf"    data-f="bill"    data-f="bill" onclick="setF(this,'bill')"><span class="sbf-dot" style="background:var(--teal)"></span>🧾 วางบิล<span class="sbf-cnt" id="c-bill">0</span></button>
+      <button class="sbf"    data-f="quote"   data-f="quote" onclick="setF(this,'quote')"><span class="sbf-dot" style="background:var(--amber)"></span>💰 เสนอราคา<span class="sbf-cnt" id="c-quote">0</span></button>
+      <button class="sbf"    data-f="retail"  data-f="retail" onclick="setF(this,'retail')"><span class="sbf-dot" style="background:var(--rose)"></span>🛒 รีเทล/Lotus<span class="sbf-cnt" id="c-retail">0</span></button>
+      <button class="sbf"    data-f="support" data-f="support" onclick="setF(this,'support')"><span class="sbf-dot" style="background:var(--purple)"></span>🔧 ซ่อม/ประกัน<span class="sbf-cnt" id="c-support">0</span></button>
+      <button class="sbf"    data-f="unread"  data-f="unread" onclick="setF(this,'unread')"><span class="sbf-dot" style="background:var(--accent)"></span>● ยังไม่อ่าน<span class="sbf-cnt" id="c-unread">0</span></button>
+      <button class="sbf"    data-f="attach"  data-f="attach" onclick="setF(this,'attach')"><span class="sbf-dot" style="background:var(--purple)"></span>📎 มีไฟล์แนบ<span class="sbf-cnt" id="c-attach2">0</span></button>
     </div>
   </div>
 
@@ -396,6 +511,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
 <!-- MAIN -->
 <div class="main">
   <div class="main-top">
+    <button class="mob-ham" onclick="sbToggle()" aria-label="เมนู">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div><div class="main-title">Activity Timeline</div><div class="main-sub" id="main-sub">ฝ่ายขาย ปี 2026</div></div>
     <div class="f1"></div>
     <span class="result-badge" id="result-badge"></span>
@@ -431,7 +549,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Prompt,sans-serif;
   <button class="lb-nav lb-next" id="lb-next" onclick="event.stopPropagation();lbNav(1)">&#8250;</button>
 </div>
 
+<div class="sb-backdrop" id="sb-backdrop" onclick="sbClose()"></div>
+
 <div class="toast" id="toast"></div>
+
+<!-- Mobile bottom nav -->
+<nav class="mob-nav" id="mob-nav">
+  <button class="mob-nav-item on" id="mn-all"    onclick="mobFilter(this,'all')"><span class="mn-ico">📋</span>ทั้งหมด</button>
+  <button class="mob-nav-item"    id="mn-unread" onclick="mobFilter(this,'unread')"><span class="mn-ico">🔵</span>ยังไม่อ่าน</button>
+  <button class="mob-nav-item"    id="mn-visit"  onclick="mobFilter(this,'visit')"><span class="mn-ico">🚗</span>ลงพื้นที่</button>
+  <button class="mob-nav-item"    id="mn-quote"  onclick="mobFilter(this,'quote')"><span class="mn-ico">📄</span>ใบเสนอ</button>
+  <button class="mob-nav-item"    id="mn-bill"   onclick="mobFilter(this,'bill')"><span class="mn-ico">🧾</span>ใบแจ้งหนี้</button>
+  <button class="mob-nav-item"    id="mn-sb"     onclick="sbToggle()"><span class="mn-ico">☰</span>เมนู</button>
+</nav>
+
+<!-- Mobile FAB refresh -->
+<button class="mob-fab" id="mob-fab" onclick="fetchData()" title="รีเฟรช">⟳</button>
 
 <script>
 // ── Config ───────────────────────────────────────────────
@@ -822,6 +955,43 @@ function setTxtMode(btn,mode){
 }
 function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000)}
+
+// ── Mobile Sidebar ──────────────────────────────────────
+function sbToggle(){
+  const sb=document.getElementById('sb');
+  const bd=document.getElementById('sb-backdrop');
+  const isOpen=sb.classList.contains('open');
+  if(isOpen){sbClose();}else{sb.classList.add('open');bd.classList.add('on');document.body.style.overflow='hidden';}
+}
+function sbClose(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sb-backdrop').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+// ── Mobile bottom nav filter ────────────────────────────
+function mobFilter(btn,f){
+  document.querySelectorAll('.mob-nav-item').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  // sync desktop sidebar filter
+  curF=f;
+  document.querySelectorAll('.sbf').forEach(b=>b.classList.remove('on'));
+  const desktop=document.querySelector(`.sbf[data-f="${f}"]`);
+  if(desktop)desktop.classList.add('on');
+  render();
+  sbClose();
+}
+
+// ── Mobile swipe on lightbox ──────────────────────────
+(()=>{
+  let tx0=0;
+  const lb=document.getElementById('lightbox');
+  lb.addEventListener('touchstart',e=>{tx0=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx0;
+    if(Math.abs(dx)>50){lbNav(dx<0?1:-1);}
+  },{passive:true});
+})();
 
 // ── Init ──────────────────────────────────────────────────
 (()=>{
